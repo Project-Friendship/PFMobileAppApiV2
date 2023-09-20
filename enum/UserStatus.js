@@ -1,0 +1,5 @@
+module.exports = {
+	INACTIVE: "e3e901b5-ac42-4a67-aa41-b0dc75f1016b",
+	PENDING_CONFIRMAION: "f4265941-4b83-49ed-8ce5-3497587dc924",
+	ACTIVE: "f8b5461e-63ae-4861-99ee-d6831f0baf8b"
+}
