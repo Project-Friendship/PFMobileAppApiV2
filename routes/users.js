@@ -1,8 +1,10 @@
+require("dotenv").config();
+const bcrypt = require("bcrypt");
 const express = require("express");
+const router = express.Router();
 const BasicCrud = require("../model/BasicCrud");
 const UserStatus = require("../enum/UserStatus");
 const Email = require("../model/Email");
-const router = express.Router();
 const ejs = require("ejs")
 const fs = require("fs");
 const errorView = require("../view/errorView");
@@ -14,13 +16,14 @@ const model = BasicCrud({
 	table: "pf.users",
 	idField: "id",
 	validFields: [
-		{ field: 'id', isRequired: false, isReadOnly: true, isHidden: false },
-		{ field: 'email', isRequired: true, isReadOnly: false, isHidden: false },
-		{ field: 'fname', isRequired: true, isReadOnly: false, isHidden: false },
-		{ field: 'lname', isRequired: true, isReadOnly: false, isHidden: false },
-		{ field: 'pronouns', isRequired: false, isReadOnly: false, isHidden: false },
-		{ field: 'phone', isRequired: false, isReadOnly: false, isHidden: false },
-		{ field: 'status_id', isRequired: false, isReadOnly: false, isHidden: false },
+		{ field: 'id', isReadOnly: true },
+		{ field: 'email', isRequired: true },
+		{ field: 'fname', isRequired: true },
+		{ field: 'lname', isRequired: true },
+		{ field: 'pronouns' },
+		{ field: 'phone' },
+		{ field: 'status_id' },
+		{ field: 'password', isRequired: true, isHidden: true, mutator: value => bcrypt.hashSync(value, parseInt(process.env.SALT_ROUNDS)) }
 	],
 	retrieveDefaultData: () => Promise.resolve({ status_id: UserStatus.PENDING_CONFIRMAION }),
 	onCreateGet: response => {

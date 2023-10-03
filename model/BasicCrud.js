@@ -20,10 +20,20 @@ module.exports = (params) => {
 		...params
 	}
 
+	const defaultField = {
+		isHidden: false,
+		isReadonly: false,
+		isRequired: false,
+		mutator: data => data,
+	}
+
+	params.validFields = params.validFields.map(field => ({...defaultField, ...field }))
 	const {
 		validFields, table, idField, entityName, collectionName, retrieveDefaultData,
 		onCreate, onGet, onCreateGet, onGetAll, onDelete, onUpdate
 	} = params;
+
+	
 
 	const listOfFields = validFields.filter(({ isHidden }) => !isHidden).map(({ field }) => field).join(", ");
 	const hasRequired = (body) => validFields.filter(({ isRequired }) => isRequired).map(({ field }) => field).every(field => body.hasOwnProperty(field) && (body[field] !== "" || body[field] !== null));
@@ -73,7 +83,7 @@ module.exports = (params) => {
 				if (!hasRequired(body)) return errorView({ res });
 				const fields = validFields.filter(({ isReadOnly }) => !isReadOnly)
 					.filter(({ field }) => body.hasOwnProperty(field))
-					.map(({ field }) => ({ field, value: parseValue(body[field]) }))
+					.map(({ field, mutator }) => ({ field, value: mutator(parseValue(body[field])) }))
 
 				const text = `insert into ${table}(${fields.map(({ field }) => field).join(",")}) 
 							values (${fields.map((x, i) => `$${i + 1}`).join(", ")}) 
@@ -105,7 +115,7 @@ module.exports = (params) => {
 			const fields = validFields
 				.filter(({ isReadOnly }) => !isReadOnly)
 				.filter(({ field }) => body.hasOwnProperty(field))
-				.map(({ field }) => ({ field: `${field} = $${i++}`, value: parseValue(body[field]) }))
+				.map(({ field, mutator }) => ({ field: `${field} = $${i++}`, value: mutator(parseValue(body[field])) }))
 			if (fields.length === 0) return errorView({ res, statusCode: 400 });
 			const text = `Update ${table} set ${fields.map(({ field }) => field).join(", ")} where ${idField} = $${i}`
 			const values = [...fields.map(({ value }) => value), id];
