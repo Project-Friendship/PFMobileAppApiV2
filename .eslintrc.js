@@ -29,9 +29,6 @@ module.exports = {
         "node"
     ],
     "rules": {
-        "indent": ["error", 2],
-        "max-len": ["error", 
-          { "ignoreUrls": true }
-        ]
+        "indent": ["error", 2]
     }
 };
